@@ -1,0 +1,139 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Recog</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">  
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
+    <link rel="stylesheet" href={{ url_for('static', filename='css/bootstrap.min.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/owl.carousel.min.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/magnific-popup.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/font-awesome.min.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/themify-icons.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/nice-select.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/flaticon.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/gijgo.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/animate.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/slicknav.css') }}>
+    <link rel="stylesheet" href={{ url_for('static', filename='css/style.css') }}>
+    <!-- <link rel="stylesheet" href="css/responsive.css"> -->
+</head>
+
+<body>
+ <link rel="stylesheet" type="text/css" href="listcss.css">
+    <header>
+        <div class="header-area ">
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid p-0">
+                    <div class="row align-items-center no-gutters">
+                        <div class="col-xl-2 col-lg-2">
+                            <div class="logo-img">
+                                <a href="index.html">
+                                    <img src="img/logo.png" alt="">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-7">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li></li>
+                                        <li></li>
+                                        
+                                        <li><a href = "/">Click to go back to home</a></li>
+                                        <li></li>
+                                         <li><a href = "/admin">Click to go back to Previous page</a></li>
+                                         <li></li>
+                                        <li></li>
+                                        <li></li>
+                                       
+                                
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                     
+                        <div class="col-12">
+                            <div class="mobile_menu d-block d-lg-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- header-end -->
+
+    <!-- bradcam_area_start -->
+   <body>
+ <div class="bradcam_area breadcam_bg overlay2">
+    <div class="limiter">
+        <div class="container-table100">
+            <div class="wrap-table100">
+                <div class="table100">
+                    <center>
+                    <table border="2px white;">
+                        <thead>
+                            <tr class="table100-head">
+                                <th class="column1" style="color: white">stName</th>
+                                <th class="column2" style="color: white">facname</th>
+                                <th class="column3" style="color: white">intime</th>
+                                <th class="column4" style="color: white">class no</th>
+                            
+                            </tr>
+                        </thead>
+                        <tbody>
+                                 {% for row in rows %}
+                                <tr>
+                                    <td><p style="color: white">{{row[0]}}</p></td>
+                                    <td><p style="color: white">{{row[1]}}</p></td>
+                                    <td><p style="color: white"> {{row[2]}}</p></td>
+                                    <td><p style="color: white">{{row[3]}}</p></td>
+                                    </tr>
+                                    {% endfor %}
+                        
+                        </tbody>
+                    </table>
+                        </center>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</body>
+    <!-- JS here -->
+    <script src={{ url_for('static', filename='js/vendor/modernizr-3.5.0.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/vendor/jquery-1.12.4.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/popper.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/bootstrap.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/owl.carousel.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/isotope.pkgd.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/ajax-form.js') }}></script>
+    <script src={{ url_for('static', filename='js/waypoints.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/jquery.counterup.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/imagesloaded.pkgd.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/scrollIt.js') }}></script>
+    <script src={{ url_for('static', filename='js/jquery.scrollUp.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/wow.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/nice-select.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/jquery.slicknav.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/jquery.magnific-popup.min.js') }}></script>
+    <script src={{ url_for('static', filename='js/plugins.js') }}></script>
+    <script src={{ url_for('static', filename='js/gijgo.min.js') }}></script>
+
+    <!--contact js-->
+    <script src={{ url_for('static', filename='js/contact.js') }} ></script>
+    <script src={{ url_for('static', filename='js/jquery.ajaxchimp.min.js') }} ></script>
+    <script src={{ url_for('static', filename='js/jquery.form.js') }}> </script>
+    <script src={{ url_for('static', filename='js/jquery.validate.min.js') }}> </script>
+    <script src={{ url_for('static', filename='js/mail-script.js') }}> </script>
+
+    <script src={{ url_for('static', filename='js/main.js') }}> </script>
+</body>
+
+</html>
