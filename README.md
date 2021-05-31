@@ -10,5 +10,5 @@ Facial Recognition Interface for a University
 5. open localhost:5000 for the home page
 6. open /admin for the admin panel to enroll people
 7. after enrollment please run trainer
-8. attendence can be taken from faculty login
-9. admin can view all the attendence form the admin panel
+8. attendance can be taken from faculty login
+9. admin can view all the attendance form the admin panel
