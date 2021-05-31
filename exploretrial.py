@@ -1,47 +1,75 @@
-import pickle
+
 import sqlite3
+import checkstud
 
 
-def studinclass(regno):
-
+def studcno(regno):
+    conn = sqlite3.connect('base.db')
+    c = conn.cursor()
+    
+    c.execute("SELECT c_no FROM base_attendance WHERE st1_regno = '{}'".format(regno))
+    #print(regno,"was present for the classes: ")
+    return printslice(c.fetchall())
+    
+    
+def studinclass(regno, chno):
     allstud = []
     conn = sqlite3.connect('base.db')
     c = conn.cursor()
+    
+    c.execute("SELECT c_no FROM base_attendance WHERE fac1_regno= '{}' ".format(regno))
+    #print('Select Class no.: ')
 
-    all_att = pickle.load(open('pickle\\all_att.pkl', 'rb'))
+    p = printslice(c.fetchall())
 
-    c.execute("SELECT c_no FROM base_attendance WHERE fac_regno= '{}' ".format(regno))
-    print('Select Class no.: ')
-
-    for i in c.fetchall():
-        print(i)
-
-    chno = int(input())
-    c.execute("SELECT st_regno FROM base_attendance WHERE c_no = {} " .format(chno))
+    #chno = int(input())
+    c.execute("SELECT st1_regno FROM base_attendance WHERE c_no = {} " .format(chno))
 
     for i in c.fetchall():
         allstud.append(i)
 
-    return [allstud, chno]
+    return [allstud, chno], p
 
 
-def addregno(regno):
+def addregno(fac_regno, stud_regno, c_no):
     conn = sqlite3.connect('base.db')
     c = conn.cursor()
-    
-    print('Adding regno')
-    [allstud, chno] = studinclass(regno)
-    print(allstud)
-    addreg = input('Enter regno to be added: ')
-    c.execute("INSERT into base_attendance VALUES( ?, '', ?, ? )",(addreg, '', chno))
 
-##    all_att = pickle.load(open('pickle\\all_att.pkl', 'rb'))
-##
-##    list
+    [allstud, chno], p = studinclass(fac_regno, c_no)
+    print('Students currently in class: ', allstud)
+    #addreg = input('Enter regno to be added: ')
+
+    addreg = stud_regno
+    if addreg in checkstud.checking():
+        if addreg not in [i[0] for i in allstud]:
+            print(addreg, allstud)
+            print('Adding regno in addregno')
+            c.execute("INSERT into base_attendance VALUES( ?, ?, ?, ? )",(addreg, fac_regno, '', chno))
+    else:
+        print("Registration number not present")
     conn.commit()
-    
 
-def delregno(regno):
-    print('Deleting regno')
 
-    print(studinclass(regno))
+def delregno(fac_regno,stud_regno, c_no):
+    conn = sqlite3.connect('base.db')
+    c = conn.cursor()
+
+    [allstud, chno], p = studinclass(fac_regno, c_no)
+    print('Students before deleting: ',allstud)
+    #delreg = input('Enter regno to be deleted: ')
+    delreg = stud_regno
+    if delreg in checkstud.checking():
+        print('Deleting regno')
+        c.execute("DELETE from base_attendance WHERE st1_regno = ? AND c_no = ? ", (delreg, chno))
+    else:
+        print("Registration number not present")
+
+    conn.commit()
+
+
+def printslice(pr):
+    p = []
+    for i in pr:
+        #print(list(i)[0])
+        p.append(list(i)[0])
+    return p

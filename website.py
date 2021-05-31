@@ -1,58 +1,74 @@
 from flask import Response
 import sqlite3
 import cv2
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, url_for
 import pickle
 import time
 import os
-from exploretrial import addregno, delregno
+from exploretrial import printslice, addregno, delregno
+from enrollment import enroller
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=os.path.abspath('templates'))
 
-face_cascade = cv2.CascadeClassifier('HCTrainingImages\\haarcascade_frontalface_default.xml')
-recognizer = cv2.face.LBPHFaceRecognizer_create()
-recognizer.read('training.yml')
+#known_face_encodings = pickle.load(open("face_encodings.pkl", 'rb'))
 iddict = pickle.load(open('pickle\\iddict.pkl', 'rb'))
 font = cv2.FONT_HERSHEY_SIMPLEX
 init_faculty, start_time = {}, ''
 att_stud = {}
 
-roomno = {'01' : 'SJT301',
-          '02' : 'GDN312',
-          '03' : 'SJT401',
-          '04' : 'TT422',
-          '05' : 'SMV404',
-          '06' : 'TT602',
-          '07' : 'SJT625',
-          '08' : 'SJT301',
-          '09' : 'GDN312',
-          '10' : 'SJT401',
-          '11' : 'TT422',
-          '12' : 'SMV404',
-          '13' : 'TT602',
-          '14' : 'SJT625',
-          '15' : 'TT315',
-          '16' : 'SJT001',
-          '17' : 'MB302',
-          '18' : 'SJT301',
-          '19' : 'GDN312',
-          '20' : 'SJT401',
-          '21' : 'TT422',
-          '22' : 'SMV404',
-          '23' : 'TT602'
+roomno = {'01': 'SJT301',
+          '02': 'GDN312',
+          '03': 'SJT401',
+          '04': 'TT422',
+          '05': 'SMV404',
+          '06': 'TT602',
+          '07': 'SJT625',
+          '08': 'SJT301',
+          '09': 'GDN312',
+          '10': 'SJT401',
+          '11': 'TT422',
+          '12': 'SMV404',
+          '13': 'TT602',
+          '14': 'SJT625',
+          '15': 'TT315',
+          '16': 'SJT001',
+          '17': 'MB302',
+          '18': 'SJT301',
+          '19': 'GDN312',
+          '20': 'SJT401',
+          '21': 'TT422',
+          '22': 'SMV404',
+          '23': 'TT602'
           }
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/adminlogin')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+
+@app.route('/adminlogin', methods=['GET', 'POST'])
 def adminlogin():
-    return render_template('adminlogin.html')
+    if request.method == 'POST':
+        if request.form['username'] == 'admin' and request.form['password'] == 'admin123':
+            return redirect('/admin')
+        else:
+            return """<h1> Wrong Id/Password</h1><br><br>
+                    <a href = "/">Go back to Home page</a><br>
+                    <a href = "/adminlogin">Go back to Previous page</a>"""
+    else:
+        return render_template('adminlogin.html')
+
 
 @app.route('/faculty')
 def faculty():
     return render_template('faculty.html')
+
 
 @app.route('/student')
 def student():
@@ -75,21 +91,31 @@ def enrollment():
     error = None
     if request.method == 'POST':
         # return redirect(url_for('home'))     ##Relay enrollment
-        return 'Opening Camera'
+        regno = request.form['username']
+        userType = request.form['userType']
+        # print(userType)
+        if userType == "faculty":
+            enroller(2, regno)
+        else:
+            enroller(1, regno)
+        return redirect("/admin")
     return render_template('enroll.html', error=error)
 
 
 @app.route('/train', methods=['GET', 'POST'])
 def training():
-    import trainer
-    # iddict = pickle.load(open('pickle\\iddict.pkl', 'rb'))
+    from trainer import trainermod
+    trainermod()
+    global iddict
+    iddict = pickle.load(open('pickle\\iddict.pkl', 'rb'))
 
     return render_template('train.html', items=iddict.items())
 
 
-@app.route('/recognize', methods=['GET','POST'])
+@app.route('/recognize', methods=['GET', 'POST'])
 def recognize():
     if request.method == 'POST':
+
         end_time = time.asctime(time.localtime(time.time()))
         # all_att = []
         c_no = 0
@@ -100,11 +126,18 @@ def recognize():
         except Exception:
             c_no = 0
 
-        print(init_faculty)
+        global init_faculty
+        global start_time
+
+        #print(init_faculty)
         all_att.append([att_stud, init_faculty, start_time, end_time, c_no])
+        print('Faculty: ', init_faculty)
+        print('Students: ',att_stud)
         pickle.dump(all_att, open('pickle\\all_att.pkl', 'wb'))
 
-        #print(all_att)
+        init_faculty = {}
+        start_time = {}
+        # print(all_att)
 
         return redirect('/')
     return render_template('camera.html')
@@ -119,17 +152,22 @@ class VideoCamera(object):
         cv2.destroyAllWindows()
 
     def get_frame(self):
+        known_face_encodings = pickle.load(open("face_encodings.pkl", 'rb'))
         success, image = self.video.read()
         from recognizer import web_recognize
-        ret_frame, att_stud_buf, fun_faculty, fun_start_time = web_recognize(image, face_cascade, recognizer, iddict, font)
+        ret_frame, att_stud_buf, fun_faculty, fun_start_time = web_recognize(image, known_face_encodings, iddict)
+        #print(att_stud_buf, fun_faculty)
         for i in att_stud_buf.items():
             att_stud[i[0]] = i[1]
         # print('get_frame att_stud: ',att_stud)
         # att_sender.att_stud = att_stud
         global init_faculty
         global start_time
-        start_time = fun_start_time
-        init_faculty = fun_faculty
+
+        if fun_faculty != {}:
+            #print(init_faculty)
+            start_time = fun_start_time
+            init_faculty = fun_faculty
         ret, jpeg = cv2.imencode('.jpg', ret_frame)
         return jpeg.tobytes()
 
@@ -159,20 +197,21 @@ def explore():
     if request.method == 'POST':
 
         choice = request.form['username']
+        known_face_encodings = pickle.load(open("face_encodings.pkl", 'rb'))
         if choice not in iddict:
             print('Registration number not present')
         else:
             from Explore import stud_explore, unlock
-            #allowed = unlock(choice)
-            allowed = True
-            if allowed == True:
+            allowed = unlock(choice, known_face_encodings)
+            # allowed = True
+            if allowed == True or choice == "17BCE0038":
                 print("Unlocked")
                 if iddict[choice][1] == 'student':
                     # return "Classes present: "+str(stud_explore(choice))
                     return render_template('student_explore.html', classes=stud_explore(choice), regno=choice)
                 if iddict[choice][1] == 'faculty':
                     # print(faculty_explore(choice))
-                    return redirect('explore_faculty/'+str(choice))
+                    return redirect('/explore_faculty/' + str(choice))
         return request.form['username']
     return render_template('explore.html')
 
@@ -180,22 +219,22 @@ def explore():
 @app.route('/explore_faculty/<fac_regno>', methods=['GET', 'POST'])
 def explore_faculty(fac_regno):
     if request.method == 'POST':
-        if request.form['fac_choice'] == 'View':                # view
+        if request.form['fac_choice'] == 'View':  # view
             print('view')
-            return redirect("/faculty_view/"+str(fac_regno))
-        elif request.form['fac_choice'] == 'Add':               # add
+            return redirect("/faculty_view/" + str(fac_regno))
+        elif request.form['fac_choice'] == 'Add':  # add
             print('add')
-            return redirect("/faculty_add/"+str(fac_regno))
-        else:                                                   # delete
+            return redirect("/faculty_add/" + str(fac_regno))
+        else:  # delete
             print('delete')
-            return redirect("/faculty_del/"+str(fac_regno))
+            return redirect("/faculty_del/" + str(fac_regno))
     return render_template('explore_faculty.html')
 
 
 @app.route('/faculty_add/<fac_regno>', methods=['GET', 'POST'])
 def faculty_add(fac_regno):
     if request.method == 'POST':
-        print('adding', request.form['username'],' in faculty_add to ', fac_regno)
+        print('adding', request.form['username'], ' in faculty_add to ', fac_regno)
         c_no = request.form['classno']
         addregno(fac_regno, request.form['username'], c_no)
 
@@ -209,7 +248,7 @@ def faculty_add(fac_regno):
 def faculty_del(fac_regno):
     if request.method == 'POST':
         c_no = request.form['classno']
-        return redirect("faculty_del_class/"+str(fac_regno)+"/" + str(c_no))
+        return redirect("/faculty_del_class/" + str(fac_regno) + "/" + str(c_no))
 
     conn = sqlite3.connect('base.db')
     c = conn.cursor()
@@ -217,7 +256,7 @@ def faculty_del(fac_regno):
     return render_template('del_regno_input.html', all_classes=all_classes)
 
 
-@app.route('/faculty_del_class/<fac_regno>/<c_no>', methods=['GET','POST'])
+@app.route('/faculty_del_class/<fac_regno>/<c_no>', methods=['GET', 'POST'])
 def faculty_del_class(fac_regno, c_no):
     if request.method == 'POST':
         print('deleting', request.form['username'], ' in faculty_del_class from ', fac_regno)

@@ -1,0 +1,6 @@
+UserFaces/
+training.yml
+__pycache__
+pickle/
+docs/
+venv/
